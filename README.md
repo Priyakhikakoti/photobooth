@@ -6,16 +6,22 @@
 
   **A tiny vintage photo moment. Capture timed retro photos & download your cute photo strip!** 🎀✨
 
-  [![Live Site](https://img.shields.io/badge/Live_Site-priyakhikakoti.github.io%2Fphotobooth-ff7748?style=flat-square&logo=github&logoColor=white)](https://priyakhikakoti.github.io/photobooth/)
+  ### 🌐 [Click Here to Open Live App: https://priyakhikakoti.github.io/photobooth/](https://priyakhikakoti.github.io/photobooth/)
+
+  [![Live Site](https://img.shields.io/badge/🌐_Live_Website-priyakhikakoti.github.io%2Fphotobooth-ff7748?style=for-the-badge&logo=github&logoColor=white)](https://priyakhikakoti.github.io/photobooth/)
+
   [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
   [![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
   [![Privacy](https://img.shields.io/badge/Privacy-100%25_On--Device-emerald?style=flat-square&logo=shield&logoColor=white)](#-privacy-guarantee)
   [![License](https://img.shields.io/badge/License-MIT-amber?style=flat-square)](LICENSE)
 
-  [Live Demo](https://priyakhikakoti.github.io/photobooth/) • [Key Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Deployment](#-deployment)
-
 </div>
+
+---
+
+> [!TIP]
+> 💖 **Try Peachy Booth Live**: [https://priyakhikakoti.github.io/photobooth/](https://priyakhikakoti.github.io/photobooth/)
 
 ---
 
