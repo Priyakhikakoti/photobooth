@@ -6,9 +6,7 @@
 
   **A tiny vintage photo moment. Capture timed retro photos & download your cute photo strip!** 🎀✨
 
-  ### 🌐 [Click Here to Open Live App: https://priyakhikakoti.github.io/photobooth/](https://priyakhikakoti.github.io/photobooth/)
-
-  [![Live Site](https://img.shields.io/badge/🌐_Live_Website-priyakhikakoti.github.io%2Fphotobooth-ff7748?style=for-the-badge&logo=github&logoColor=white)](https://priyakhikakoti.github.io/photobooth/)
+   [![Live Site](https://img.shields.io/badge/🌐_Live_Website-priyakhikakoti.github.io%2Fphotobooth-ff7748?style=for-the-badge&logo=github&logoColor=white)](https://priyakhikakoti.github.io/photobooth/)
 
   [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
   [![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
