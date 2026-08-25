@@ -1,5 +1,6 @@
 import React from 'react';
-import { Camera, Sparkles, Heart, Film, ShieldCheck } from 'lucide-react';
+import { Camera, Sparkles, Heart } from 'lucide-react';
+
 
 export default function WelcomeScreen({ onStart }) {
   return (

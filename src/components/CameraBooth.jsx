@@ -3,7 +3,7 @@ import FilterSelector from './FilterSelector';
 import CountdownOverlay from './CountdownOverlay';
 import { getFilterById } from '../utils/filters';
 import { playBeep, playShutterSound } from '../utils/audio';
-import { Camera, RefreshCw, AlertCircle, Sparkles, VideoOff, Volume2, VolumeX } from 'lucide-react';
+import { Camera, RefreshCw, AlertCircle, VideoOff, Volume2, VolumeX, SwitchCamera } from 'lucide-react';
 
 export default function CameraBooth({
   selectedFilter,
@@ -21,12 +21,16 @@ export default function CameraBooth({
   const [currentShotIndex, setCurrentShotIndex] = useState(0);
   const [isFlashing, setIsFlashing] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [facingMode, setFacingMode] = useState('user'); // 'user' (front) or 'environment' (back)
 
-  // Initialize camera stream on mount
+  // Initialize camera stream on mount & when facingMode changes
   useEffect(() => {
     let isMounted = true;
 
     async function startCamera() {
+      // Stop any existing stream first
+      stopCameraStream();
+
       try {
         setHasPermission(null);
         setErrorMessage('');
@@ -35,7 +39,7 @@ export default function CameraBooth({
           video: {
             width: { ideal: 1280 },
             height: { ideal: 960 },
-            facingMode: 'user'
+            facingMode: facingMode
           },
           audio: false
         };
@@ -43,7 +47,6 @@ export default function CameraBooth({
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         
         if (!isMounted) {
-          // If unmounted while waiting for permission, stop tracks immediately
           stream.getTracks().forEach(track => track.stop());
           return;
         }
@@ -61,7 +64,7 @@ export default function CameraBooth({
           if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
             setErrorMessage('Camera access was denied. Please allow camera permissions in your browser settings to continue.');
           } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            setErrorMessage('No camera device found on your system. Please connect a webcam.');
+            setErrorMessage('No camera device found on your system. Please connect a camera.');
           } else {
             setErrorMessage(`Could not access camera: ${err.message || 'Unknown error'}`);
           }
@@ -75,7 +78,7 @@ export default function CameraBooth({
       isMounted = false;
       stopCameraStream();
     };
-  }, []);
+  }, [facingMode]);
 
   function stopCameraStream() {
     if (streamRef.current) {
@@ -84,13 +87,17 @@ export default function CameraBooth({
     }
   }
 
-  // Capture current video frame into a data URL with filter applied
+  const toggleCameraFacingMode = () => {
+    if (isCountingDown) return;
+    setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
+  };
+
+  // Capture current video frame into a clean data URL (raw crisp frame without double filter)
   function captureFrame() {
     const video = videoRef.current;
     if (!video) return null;
 
     const canvas = document.createElement('canvas');
-    // Maintain native video resolution or fallback to default
     const width = video.videoWidth || 640;
     const height = video.videoHeight || 480;
     canvas.width = width;
@@ -98,16 +105,13 @@ export default function CameraBooth({
 
     const ctx = canvas.getContext('2d');
     
-    // Mirror horizontally for natural selfie perspective
-    ctx.translate(width, 0);
-    ctx.scale(-1, 1);
-
-    // Apply active filter to canvas context
-    const currentFilter = getFilterById(selectedFilter);
-    if (currentFilter && currentFilter.cssFilter !== 'none') {
-      ctx.filter = currentFilter.cssFilter;
+    // Mirror horizontally for selfie (user facing) mode only
+    if (facingMode === 'user') {
+      ctx.translate(width, 0);
+      ctx.scale(-1, 1);
     }
 
+    // Draw raw camera frame (filter will be rendered live on PhotoStripCanvas)
     ctx.drawImage(video, 0, 0, width, height);
     return canvas.toDataURL('image/jpeg', 0.95);
   }
@@ -150,7 +154,6 @@ export default function CameraBooth({
 
           // Check if more shots remain
           if (shotIndex + 1 < 3) {
-            // Short delay before starting next shot countdown
             setTimeout(() => {
               runSingleShot(shotIndex + 1);
             }, 800);
@@ -172,9 +175,9 @@ export default function CameraBooth({
   const activeFilterPreset = getFilterById(selectedFilter);
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-4 flex flex-col items-center">
+    <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex flex-col items-center">
       {/* Top Controls Bar */}
-      <div className="w-full flex items-center justify-between mb-4 px-2">
+      <div className="w-full flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
           <span className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -183,26 +186,40 @@ export default function CameraBooth({
           <span className="text-xs font-semibold text-stone-600">Webcam Live</span>
         </div>
 
-        <button
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cream-100 border border-peach-200 text-xs text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
-        >
-          {soundEnabled ? (
-            <>
-              <Volume2 className="w-3.5 h-3.5 text-peach-500" />
-              <span>Sound On</span>
-            </>
-          ) : (
-            <>
-              <VolumeX className="w-3.5 h-3.5 text-stone-400" />
-              <span>Muted</span>
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Flip Camera Button */}
+          <button
+            onClick={toggleCameraFacingMode}
+            disabled={isCountingDown || !hasPermission}
+            title="Switch front/back camera"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-cream-100 border border-peach-200 text-xs text-stone-600 hover:text-stone-900 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <SwitchCamera className="w-3.5 h-3.5 text-peach-600" />
+            <span className="hidden min-[380px]:inline">Flip</span>
+          </button>
+
+          {/* Sound Toggle */}
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cream-100 border border-peach-200 text-xs text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
+          >
+            {soundEnabled ? (
+              <>
+                <Volume2 className="w-3.5 h-3.5 text-peach-500" />
+                <span>Sound On</span>
+              </>
+            ) : (
+              <>
+                <VolumeX className="w-3.5 h-3.5 text-stone-400" />
+                <span>Muted</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Main Video Preview Container */}
-      <div className="relative w-full aspect-[4/3] bg-stone-900 rounded-3xl overflow-hidden border-4 border-white shadow-xl mb-6 flex items-center justify-center">
+      <div className="relative w-full aspect-[4/3] bg-stone-900 rounded-3xl overflow-hidden border-4 border-white shadow-xl mb-4 flex items-center justify-center">
         {/* Permission Request Loading State */}
         {hasPermission === null && (
           <div className="flex flex-col items-center justify-center text-white p-6 text-center">
@@ -235,7 +252,7 @@ export default function CameraBooth({
           muted
           style={{
             filter: activeFilterPreset ? activeFilterPreset.cssFilter : 'none',
-            transform: 'scaleX(-1)' // Mirror preview for natural feedback
+            transform: facingMode === 'user' ? 'scaleX(-1)' : 'none'
           }}
           className={`w-full h-full object-cover transition-all duration-300 ${
             hasPermission ? 'opacity-100' : 'opacity-0'
@@ -257,7 +274,7 @@ export default function CameraBooth({
       </div>
 
       {/* Filter Selector Pills */}
-      <div className="w-full mb-6">
+      <div className="w-full mb-5">
         <FilterSelector
           selectedFilter={selectedFilter}
           onSelectFilter={onSelectFilter}
@@ -270,7 +287,7 @@ export default function CameraBooth({
         <button
           onClick={onCancel}
           disabled={isCountingDown}
-          className="btn-secondary flex-1 text-sm py-3 font-medium cursor-pointer"
+          className="btn-secondary flex-1 text-xs sm:text-sm py-3 font-medium cursor-pointer"
         >
           <VideoOff className="w-4 h-4 text-stone-500" />
           <span>Stop Camera</span>
@@ -279,7 +296,7 @@ export default function CameraBooth({
         <button
           onClick={startPhotoSequence}
           disabled={!hasPermission || isCountingDown}
-          className="btn-primary flex-2 text-base sm:text-lg py-3 font-bold cursor-pointer"
+          className="btn-primary flex-2 text-sm sm:text-base py-3 font-bold cursor-pointer"
         >
           <Camera className="w-5 h-5 stroke-[2.5]" />
           <span>{isCountingDown ? 'Taking photos...' : 'Take 3 photos'}</span>
@@ -288,3 +305,4 @@ export default function CameraBooth({
     </div>
   );
 }
+

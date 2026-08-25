@@ -1,5 +1,6 @@
 import React from 'react';
-import { Camera, ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import { Camera, ShieldCheck, Heart } from 'lucide-react';
+
 
 export default function Header({ screen, onReset }) {
   return (

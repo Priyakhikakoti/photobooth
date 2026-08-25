@@ -148,11 +148,12 @@ export default function PhotoStripCanvas({
   }, [photos, filterId, themeId, stickerId, caption, dateString, onCanvasReady]);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
       <canvas
         ref={canvasRef}
-        className="w-full max-w-[330px] sm:max-w-[370px] h-auto rounded-2xl photo-strip-shadow border-2 border-pink-200/80 transition-transform duration-300 hover:scale-[1.02]"
+        className="w-full max-w-[270px] min-[380px]:max-w-[310px] sm:max-w-[370px] h-auto rounded-2xl photo-strip-shadow border-2 border-pink-200/80 transition-transform duration-300 hover:scale-[1.02]"
       />
     </div>
   );
 }
+
